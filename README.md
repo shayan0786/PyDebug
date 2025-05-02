@@ -1,2 +1,78 @@
-# PyDebug
-PyDebug is a Flask-based Python code debugging chatbot. The Debugger section uses Gemini API to analyze and fix code, while the home page runs dummy logic. Built as part of a Learn Python project covering Sections 1 to 6.
+# PyDebug 🐍🛠️
+
+## 👨‍💻 A Flask-Based Python Debugging Chatbot (Partial AI Integration)
+
+**PyDebug** is a web-based Python code debugging assistant built using Flask. It simulates an AI chatbot that helps users analyze and correct Python code. The **Debugger section is powered by Gemini API**, while the **Home page currently runs dummy logic** for testing purposes.
+
+---
+
+## 🎯 Project Purpose
+
+This is a student project built as part of a self-learning program:  
+📘 **"Learn Python - Section 1 to Section 6"**
+
+Goals:
+- Learn Flask web development
+- Implement AI-based code debugging using Gemini API
+- Create a structured learning chatbot for beginners
+
+---
+
+## ⚙️ Features
+
+- 🧠 **Debugger Section:** Uses **Gemini API** to analyze and fix buggy Python code
+- 💬 **Home Chatbot Section:** Dummy logic using random messages (for layout testing)
+- 🧾 3-Panel Output:
+  - **Buggy Code Output**
+  - **Line-by-line Error Analysis & Fix Suggestions**
+  - **Fully Corrected Code**
+- 💡 Shows useful Python tips after debugging
+
+---
+
+## 🗃️ Project Structure
+
+
+---
+
+## AI Integration
+
+The project uses the **Gemini API** (via Google Generative AI Python library) to:
+- Analyze the provided Python code
+- Identify logical or syntactical issues
+- Generate detailed error messages and explanations
+- Return corrected and working code snippets
+- Provide best practices and Python tips
+
+Only the **Debugger section** uses this AI logic. The homepage chatbot is currently non-functional and will be updated in future versions.
+
+---
+
+## Python Topics Covered (Learning Scope)
+
+This project aligns with the following foundational Python sections:
+
+1. **Introduction to Python**
+2. **Variables and Data Types**
+3. **Conditional Statements**
+4. **Loops (for, while)**
+5. **Functions**
+6. **Error Handling and Debugging**
+
+---
+
+## Installation and Setup
+
+### Prerequisites
+
+- Python 3.8 or higher
+- pip (Python package installer)
+- Internet connection for Gemini API access
+
+### Steps
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/shayan0786/PyDebug.git
+cd PyDebug
