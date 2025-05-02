@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Basics | PyLearn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --secondary: #FF6584;
+            --dark: #2D3748;
+            --light: #F7FAFC;
+            --accent: #4FD1C5;
+            --glass: rgba(255, 255, 255, 0.15);
+            --code-bg: #011627;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, var(--dark), #1A202C);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark);
+            z-index: 9999;
+            transform: scaleY(0);
+            transform-origin: bottom;
+            transition: transform 0.6s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .page-transition.active {
+            transform: scaleY(1);
+            transform-origin: top;
+        }
+
+        .title-animation {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: titleReveal 1.5s ease-out forwards;
+        }
+
+        @keyframes titleReveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .section-title.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease 0.3s;
+        }
+
+        .section-subtitle.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .concept-card {
+            background: var(--glass);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .concept-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .concept-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .concept-title .emoji {
+            font-size: 1.5rem;
+        }
+
+        .definition-box {
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .definition-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .definition-title svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .definition-text {
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .example-box {
+            background: rgba(79, 209, 197, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .example-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent);
+        }
+
+        .example-title svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .example-text {
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--light);
+            padding: 0.3rem 0.8rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: var(--accent);
+        }
+
+        .explanation {
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.7);
+            border-left: 2px solid var(--secondary);
+            padding-left: 1rem;
+            margin-top: 1rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+        }
+
+        .nav-btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            background: linear-gradient(135deg, var(--primary), #8A7CFF);
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(108, 99, 255, 0.4);
+        }
+
+        .nav-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .title-animation {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .concept-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-transition" id="page-transition">
+        <div class="title-animation">Python Basics</div>
+    </div>
+
+    <nav>
+        <div class="nav-logo">PyLearn</div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/debugger" class="nav-link">Debugger</a>
+            <a href="/learnpy" class="nav-link">Learn Python</a>
+            <a href="#" class="nav-link" onclick="exitApp()">Exit</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="section-header">
+            <h1 class="section-title">Python Basics</h1>
+            <p class="section-subtitle">Build your Python foundation strong like a rock! Start with these fundamental concepts.</p>
+        </div>
+
+        <!-- Print Statement -->
+        <div class="concept-card" id="print-statement">
+            <h2 class="concept-title"><span class="emoji">✅</span> 1. Print Statement</h2>
+            
+            <div class="definition-box">
+                <h3 class="definition-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Definition:
+                </h3>
+                <p class="definition-text">
+                    Used to show output on the screen. Like you're telling Python 
+                </p>
+            </div>
+            
+            <div class="example-box">
+                <h3 class="example-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                    Real-life Example:
+                </h3>
+                <p class="example-text">
+                    Imagine you're writing a message on a whiteboard – the print() function is like that whiteboard!
+                </p>
+            </div>
+            
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code># Basic print statement
+print("Hello, World!")
+
+# Printing multiple items
+print("The answer is:", 42)
+
+# Printing with formatting
+name = "Rahul"
+age = 25
+print(f"My name is {name} and I'm {age} years old")</code></pre>
+                <p class="explanation">
+                    # The print() function outputs whatever you put inside the parentheses to the console.
+                    # You can print strings, numbers, variables, and even expressions.
+                </p>
+            </div>
+        </div>
+
+        <!-- Variables -->
+        <div class="concept-card" id="variables">
+            <h2 class="concept-title"><span class="emoji">📦</span> 2. Variables</h2>
+            
+            <div class="definition-box">
+                <h3 class="definition-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Definition:
+                </h3>
+                <p class="definition-text">
+                    Containers for storing data values. Like labeled boxes where you can keep different things.
+                </p>
+            </div>
+            
+            <div class="example-box">
+                <h3 class="example-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                    Real-life Example:
+                </h3>
+                <p class="example-text">
+                    Like different tiffin boxes in your kitchen - one for sugar, one for tea leaves, one for spices.
+                    Each has a label and contains something specific.
+                </p>
+            </div>
+            
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code># Variable assignment
+name = "Priya"          # String
+age = 28                # Integer
+height = 5.4            # Float
+is_student = True       # Boolean
+
+# Using variables
+print(f"{name} is {age} years old")
+print(f"Height: {height} feet")
+print(f"Is student: {is_student}")
+
+# Reassigning variables
+counter = 10
+counter = counter + 1   # Now counter is 11</code></pre>
+                <p class="explanation">
+                    # Variables don't need type declaration (Python figures it out)
+                    # Use meaningful names (not just x, y, z)
+                    # You can change values anytime (they're mutable)
+                </p>
+            </div>
+        </div>
+
+        <!-- Data Types -->
+        <div class="concept-card" id="data-types">
+            <h2 class="concept-title"><span class="emoji">🔢</span> 3. Data Types</h2>
+            
+            <div class="definition-box">
+                <h3 class="definition-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Definition:
+                </h3>
+                <p class="definition-text">
+                    The classification of data items. Like different types of containers for different purposes.
+                </p>
+            </div>
+            
+            <div class="example-box">
+                <h3 class="example-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                    Real-life Example:
+                </h3>
+                <p class="example-text">
+                    Like different kitchen utensils - a jar for liquids, a box for solids, a bag for powders.
+                    Each is suited for specific types of items.
+                </p>
+            </div>
+            
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code># Numeric types
+integer_num = 42         # int
+float_num = 3.14         # float
+complex_num = 2 + 3j     # complex
+
+# Text type
+message = "Namaste!"     # str
+
+# Boolean type
+is_active = True         # bool
+
+# Sequence types
+fruits = ["apple", "mango", "banana"]           # list
+coordinates = (10.5, 20.3)                      # tuple
+unique_numbers = {1, 2, 3, 3, 2}                # set
+
+# Mapping type
+person = {"name": "Amit", "age": 30, "city": "Mumbai"}  # dict</code></pre>
+                <p class="explanation">
+                    # Python has these main types built-in by default
+                    # Each type has specific properties and uses
+                    # You can check type with type() function
+                </p>
+            </div>
+        </div>
+<!-- Variables -->
+        <div class="concept-card" id="variables">
+            <h2 class="concept-title"><span class="emoji">📦</span> 2. Variables</h2>
+            
+            <div class="definition-box">
+                <h3 class="definition-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Definition:
+                </h3>
+                <p class="definition-text">
+                    Containers for storing data values. Like labeled boxes where you can keep different things.
+                </p>
+            </div>
+            
+            <div class="example-box">
+                <h3 class="example-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                    Real-life Example:
+                </h3>
+                <p class="example-text">
+                    Like different tiffin boxes in your kitchen - one for sugar, one for tea leaves, one for spices.
+                    Each has a label and contains something specific.
+                </p>
+            </div>
+            
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code># Variable assignment
+name = "Priya"          # String
+age = 28                # Integer
+height = 5.4            # Float
+is_student = True       # Boolean
+
+# Using variables
+print(f"{name} is {age} years old")
+print(f"Height: {height} feet")
+print(f"Is student: {is_student}")
+
+# Reassigning variables
+counter = 10
+counter = counter + 1   # Now counter is 11</code></pre>
+                <p class="explanation">
+                    # Variables don't need type declaration (Python figures it out)
+                    # Use meaningful names (not just x, y, z)
+                    # You can change values anytime (they're mutable)
+                </p>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="/learnpy" class="nav-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back to Learn
+            </a>
+            <a href="/section2py" class="nav-btn">
+                Next: Control Flow
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Page transitions
+        window.addEventListener('load', () => {
+            // Show title animation
+            setTimeout(() => {
+                document.getElementById('page-transition').classList.add('active');
+                
+                // Hide loading after animation
+                setTimeout(() => {
+                    document.getElementById('page-transition').style.display = 'none';
+                    animateSections();
+                }, 1500);
+            }, 500);
+        });
+
+        function exitApp() {
+            const transition = document.getElementById('page-transition');
+            transition.style.display = 'flex';
+            transition.classList.remove('active');
+            
+            setTimeout(() => {
+                window.close();
+            }, 600);
+        }
+
+        function animateSections() {
+            // Animate header
+            document.querySelector('.section-title').classList.add('visible');
+            document.querySelector('.section-subtitle').classList.add('visible');
+            
+            // Animate cards with delay
+            const cards = document.querySelectorAll('.concept-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('visible');
+                }, 300 * index);
+            });
+        }
+
+        function copyCode(button) {
+            const codeBlock = button.parentElement.querySelector('pre');
+            const range = document.createRange();
+            range.selectNode(codeBlock);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+            
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.textContent = 'Copy';
+            }, 2000);
+        }
+
+        // Enable hover effects after scrolling
+        let hoverEnabled = false;
+        window.addEventListener('scroll', () => {
+            if (!hoverEnabled) {
+                hoverEnabled = true;
+                document.querySelectorAll('.concept-card').forEach(card => {
+                    card.style.transition = 'transform 0.3s ease, opacity 0.6s ease';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

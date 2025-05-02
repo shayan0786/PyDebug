@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Handling | PyLearn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --secondary: #FF6584;
+            --dark: #2D3748;
+            --light: #F7FAFC;
+            --accent: #4FD1C5;
+            --glass: rgba(255, 255, 255, 0.15);
+            --code-bg: #011627;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, var(--dark), #1A202C);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark);
+            z-index: 9999;
+            transform: scaleY(0);
+            transform-origin: bottom;
+            transition: transform 0.6s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .page-transition.active {
+            transform: scaleY(1);
+            transform-origin: top;
+        }
+
+        .title-animation {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: titleReveal 1.5s ease-out forwards;
+        }
+
+        @keyframes titleReveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        /* Error Handling Title Animation */
+        .error-animate {
+            animation: errorPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+            transform: scale(1.5) rotate(5deg);
+            opacity: 0;
+            perspective: 1000px;
+            display: inline-block;
+            background: linear-gradient(90deg, 
+                #FF6584, #6C63FF, #4FD1C5,
+                #FF6584, #6C63FF);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(255, 101, 132, 0.3);
+            filter: drop-shadow(0 0 10px rgba(255, 101, 132, 0.5));
+        }
+
+        @keyframes errorPulse {
+            0% {
+                transform: scale(1.5) rotate(5deg);
+                opacity: 0;
+                background-position: 0% 50%;
+                filter: drop-shadow(0 0 0px rgba(255, 101, 132, 0));
+            }
+            50% {
+                transform: scale(0.9) rotate(-2deg);
+                opacity: 1;
+                background-position: 100% 50%;
+                filter: drop-shadow(0 0 20px rgba(255, 101, 132, 0.7));
+            }
+            70% {
+                transform: scale(1.1) rotate(1deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+                background-position: 0% 50%;
+                filter: drop-shadow(0 0 10px rgba(255, 101, 132, 0.5));
+            }
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease 0.3s;
+        }
+
+        .section-title.visible,
+        .section-subtitle.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .concept-card {
+            background: var(--glass);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .concept-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .concept-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .concept-title .emoji {
+            font-size: 1.5rem;
+        }
+
+        .definition-box {
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .definition-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .definition-title svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .definition-text {
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .example-box {
+            background: rgba(79, 209, 197, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .example-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent);
+        }
+
+        .example-title svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .example-text {
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .error-box {
+            background: rgba(255, 101, 132, 0.1);
+            border-left: 4px solid var(--secondary);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .error-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--secondary);
+        }
+
+        .error-title svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .error-text {
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--light);
+            padding: 0.3rem 0.8rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: var(--accent);
+        }
+
+        .explanation {
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.7);
+            border-left: 2px solid var(--secondary);
+            padding-left: 1rem;
+            margin-top: 1rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+        }
+
+        .nav-btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            background: linear-gradient(135deg, var(--primary), #8A7CFF);
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(108, 99, 255, 0.4);
+        }
+
+        .nav-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .title-animation {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .concept-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-transition" id="page-transition">
+        <div class="title-animation">Error Handling</div>
+    </div>
+    
+    <nav>
+        <div class="nav-logo">PyLearn</div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/debugger" class="nav-link">Debugger</a>
+            <a href="/learnpy" class="nav-link">Learn Python</a>
+            <a href="#" class="nav-link" onclick="exitApp()">Exit</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="section-header">
+            <h1 class="section-title error-animate">Error Handling</h1>
+            <p class="section-subtitle">Learn how to anticipate, catch, and handle different types of errors in Python programs.</p>
+        </div>
+
+        <!-- Syntax Errors -->
+        <div class="concept-card" id="syntax-errors">
+            <h2 class="concept-title"><span class="emoji">🔍</span> 1. Syntax Errors</h2>
+            
+            <div class="definition-box">
+                <h3 class="definition-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Definition:
+                </h3>
+                <p class="definition-text">
+                    Errors that occur when Python cannot understand your code due to incorrect syntax (grammar mistakes).
+                </p>
+            </div>
+            
+            <div class="error-box">
+                <h3 class="error-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Common Causes:
+                </h3>
+                <p class="error-text">
+                    - Missing colons at the end of statements<br>
+                    - Unmatched parentheses, brackets, or quotes<br>
+                    - Incorrect indentation<br>
+                    - Misspelled keywords<br>
+                    - Using assignment (=) instead of equality (==)
+                </p>
+            </div>
+            
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code># Examples of syntax errors
+
+# Missing colon
+def greet(name)  # SyntaxError: expected ':'
+    print("Hello", name)
+
+# Unmatched parentheses
+print("Hello"  # SyntaxError: unexpected EOF while parsing
+
+# Misspelled keyword
+whille True:  # SyntaxError: invalid syntax
+    print("Infinite loop")
+
+# Incorrect indentation
+def my_func():
+print("Hello")  # IndentationError: expected an indented block
+
+# Using = instead of ==
+if x = 5:  # SyntaxError: cannot assign to literal
+    print("x is 5")</code></pre>
+                <p class="explanation">
+                    # Caught by Python before execution begins<br>
+                    # Must be fixed before the program can run<br>
+                    # IDEs and linters can help catch these early<br>
+                    # Error messages usually point to exact location
+                </p>
+            </div>
+        </div>
+
+        <!-- Runtime Errors -->
+        <div class="concept-card" id="runtime-errors">
+            <h2 class="concept-title"><span class="emoji">💥</span> 2. Runtime Errors (Exceptions)</h2>
+            
+            <div class="definition-box">
+                <h3 class="definition-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Definition:
+                </h3>
+                <p class="definition-text">
+                    Errors that occur during program execution when Python encounters an operation it cannot perform.
+                </p>
+            </div>
+            
+            <div class="error-box">
+                <h3 class="error-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Common Exceptions:
+                </h3>
+                <p class="error-text">
+                    - <strong>NameError</strong>: Using an undefined variable<br>
+                    - <strong>TypeError</strong>: Incorrect data type operation<br>
+                    - <strong>IndexError</strong>: List index out of range<br>
+                    - <strong>KeyError</strong>: Dictionary key doesn't exist<br>
+                    - <strong>ValueError</strong>: Invalid value for operation<br>
+                    - <strong>ZeroDivisionError</strong>: Division by zero<br>
+                    - <strong>FileNotFoundError</strong>: File doesn't exist
+                </p>
+            </div>
+            
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code># Examples of runtime errors
+
+# NameError
+print(undefined_var)  # NameError: name 'undefined_var' is not defined
+
+# TypeError
+"5" + 3  # TypeError: can only concatenate str (not "int") to str
+
+# IndexError
+my_list = [1, 2, 3]
+print(my_list[5])  # IndexError: list index out of range
+
+# KeyError
+my_dict = {'a': 1, 'b': 2}
+print(my_dict['c'])  # KeyError: 'c'
+
+# ValueError
+int("hello")  # ValueError: invalid literal for int() with base 10: 'hello'
+
+# ZeroDivisionError
+5 / 0  # ZeroDivisionError: division by zero
+
+# FileNotFoundError
+open("nonexistent.txt")  # FileNotFoundError: [Errno 2] No such file...</code></pre>
+                <p class="explanation">
+                    # Occur during program execution<br>
+                    # Can be caught and handled with try-except blocks<br>
+                    # Python provides detailed error messages<br>
+                    # Often caused by unexpected input or edge cases
+                </p>
+            </div>
+        </div>
+
+        <!-- Try-Except Blocks -->
+        <div class="concept-card" id="try-except">
+            <h2 class="concept-title"><span class="emoji">🛡️</span> 3. Try-Except Blocks</h2>
+            
+            <div class="definition-box">
+                <h3 class="definition-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Definition:
+                </h3>
+                <p class="definition-text">
+                    A control structure that allows you to handle exceptions gracefully instead of crashing the program.
+                </p>
+            </div>
+            
+            <div class="example-box">
+                <h3 class="example-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                    Real-life Example:
+                </h3>
+                <p class="example-text">
+                    Like a safety net under a trapeze artist - it catches falls (errors) so the performance (program) can continue.
+                </p>
+            </div>
+            
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code># Basic try-except block
+try:
+    result = 10 / 0
+except ZeroDivisionError:
+    print("Cannot divide by zero!")
+
+# Handling multiple exceptions
+try:
+    num = int(input("Enter a number: "))
+    result = 100 / num
+except ValueError:
+    print("That's not a valid number!")
+except ZeroDivisionError:
+    print("Cannot divide by zero!")
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+
+# Else and finally clauses
+try:
+    file = open("data.txt", "r")
+    content = file.read()
+except FileNotFoundError:
+    print("File not found!")
+else:
+    print("File read successfully!")
+    print(content)
+finally:
+    print("This runs no matter what")
+    if 'file' in locals():
+        file.close()
+
+# Getting error details
+try:
+    risky_operation()
+except Exception as e:
+    print(f"Error type: {type(e).__name__}")
+    print(f"Error message: {str(e)}")
+    print(f"Traceback: {e.__traceback__}")</code></pre>
+                <p class="explanation">
+                    # try: code that might raise an exception<br>
+                    # except: handles specific exception types<br>
+                    # else: runs if no exception occurred<br>
+                    # finally: always executes (cleanup code)<br>
+                    # as e: captures exception object for inspection
+                </p>
+            </div>
+        </div>
+
+        <!-- Raising Exceptions -->
+        <div class="concept-card" id="raising-exceptions">
+            <h2 class="concept-title"><span class="emoji">🚨</span> 4. Raising Exceptions</h2>
+            
+            <div class="definition-box">
+                <h3 class="definition-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Definition:
+                </h3>
+                <p class="definition-text">
+                    Intentionally triggering exceptions in your code when certain conditions are met.
+                </p>
+            </div>
+            
+            <div class="example-box">
+                <h3 class="example-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                    Real-life Example:
+                </h3>
+                <p class="example-text">
+                    Like a fire alarm - it intentionally creates a loud warning when dangerous conditions are detected.
+                </p>
+            </div>
+            
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code># Basic raise statement
+def calculate_age(birth_year):
+    if birth_year > 2023:
+        raise ValueError("Birth year cannot be in the future")
+    return 2023 - birth_year
+
+try:
+    age = calculate_age(2025)
+except ValueError as e:
+    print(e)
+
+# Raising built-in exceptions
+def divide(a, b):
+    if b == 0:
+        raise ZeroDivisionError("Cannot divide by zero")
+    return a / b
+
+# Creating custom exceptions
+class InvalidEmailError(Exception):
+    """Raised when an email doesn't match required format"""
+    pass
+
+def validate_email(email):
+    if "@" not in email or "." not in email:
+        raise InvalidEmailError(f"Invalid email format: {email}")
+    return True
+
+try:
+    validate_email("user.example.com")
+except InvalidEmailError as e:
+    print(f"Email validation failed: {e}")
+
+# Re-raising exceptions
+def process_data(data):
+    try:
+        clean_data = clean(data)
+    except Exception as e:
+        print("Error during cleaning")
+        raise  # Re-raise the exception for higher level handling</code></pre>
+                <p class="explanation">
+                    # raise: triggers an exception manually<br>
+                    # ValueError: common for invalid parameter values<br>
+                    # Custom exceptions: create with class inheritance<br>
+                    # Re-raising: allows higher-level handling<br>
+                    # Best practice: provide descriptive error messages
+                </p>
+            </div>
+        </div>
+
+        <!-- Debugging Techniques -->
+        <div class="concept-card" id="debugging">
+            <h2 class="concept-title"><span class="emoji">🐞</span> 5. Debugging Techniques</h2>
+            
+            <div class="definition-box">
+                <h3 class="definition-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Definition:
+                </h3>
+                <p class="definition-text">
+                    Methods and tools for identifying and fixing errors in your code.
+                </p>
+            </div>
+            
+            <div class="example-box">
+                <h3 class="example-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                    Real-life Example:
+                </h3>
+                <p class="example-text">
+                    Like a detective investigating a crime scene - you look for clues (error messages) and evidence (code behavior) to solve the mystery (bug).
+                </p>
+            </div>
+            
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code># Print debugging
+def calculate_average(numbers):
+    print(f"Input numbers: {numbers}")  # Debug print
+    total = sum(numbers)
+    print(f"Total: {total}")  # Debug print
+    count = len(numbers)
+    print(f"Count: {count}")  # Debug print
+    return total / count
+
+# Using assert statements
+def calculate_discount(price, discount):
+    assert price > 0, "Price must be positive"
+    assert 0 <= discount <= 1, "Discount must be between 0 and 1"
+    return price * (1 - discount)
+
+# Logging module
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+def process_data(data):
+    logger.debug(f"Processing data: {data}")
+    try:
+        result = complex_operation(data)
+        logger.info("Operation successful")
+        return result
+    except Exception as e:
+        logger.error(f"Error processing data: {e}")
+        raise
+
+# Python debugger (pdb)
+import pdb
+
+def problematic_function(x, y):
+    pdb.set_trace()  # Execution pauses here
+    result = x + y
+    return result
+
+# VS Code debugging
+"""
+1. Set breakpoints by clicking left gutter
+2. Run with debugger (F5)
+3. Inspect variables in debug panel
+4. Step through code (F10, F11)
+"""</code></pre>
+                <p class="explanation">
+                    # print(): simple but effective for quick debugging<br>
+                    # assert: checks for conditions that should always be true<br>
+                    # logging: more sophisticated than print statements<br>
+                    # pdb: interactive debugger built into Python<br>
+                    # IDE debuggers: graphical interfaces for debugging<br>
+                    # Best practice: remove debug prints before finalizing code
+                </p>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="/section5py" class="nav-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back: Object-Oriented Programming
+            </a>
+            <a href="/section1py" class="nav-btn">
+                Next: Python Basics
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Page transitions
+        window.addEventListener('load', () => {
+            // Show title animation
+            setTimeout(() => {
+                document.getElementById('page-transition').classList.add('active');
+                
+                // Hide loading after animation
+                setTimeout(() => {
+                    document.getElementById('page-transition').style.display = 'none';
+                    animateSections();
+                }, 1500);
+            }, 500);
+        });
+
+        function exitApp() {
+            const transition = document.getElementById('page-transition');
+            transition.style.display = 'flex';
+            transition.classList.remove('active');
+            
+            setTimeout(() => {
+                window.close();
+            }, 600);
+        }
+
+        function animateSections() {
+            // Animate header
+            document.querySelector('.section-title').classList.add('visible');
+            document.querySelector('.section-subtitle').classList.add('visible');
+            
+            // Animate cards with delay
+            const cards = document.querySelectorAll('.concept-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('visible');
+                }, 300 * index);
+            });
+        }
+
+        function copyCode(button) {
+            const codeBlock = button.parentElement.querySelector('pre');
+            const range = document.createRange();
+            range.selectNode(codeBlock);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+            
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.textContent = 'Copy';
+            }, 2000);
+        }
+
+        // Enable hover effects after scrolling
+        let hoverEnabled = false;
+        window.addEventListener('scroll', () => {
+            if (!hoverEnabled) {
+                hoverEnabled = true;
+                document.querySelectorAll('.concept-card').forEach(card => {
+                    card.style.transition = 'transform 0.3s ease, opacity 0.6s ease';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Python Code Debugger</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #6c63ff;
+        --secondary: #ff6584;
+        --dark: #2d3748;
+        --light: #f7fafc;
+        --accent: #4fd1c5;
+        --glass: rgba(255, 255, 255, 0.15);
+        --error: #ff5252;
+        --success: #4caf50;
+        --ai-bot: #6c63ff;
+        --ai-user: #4fd1c5;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Montserrat", sans-serif;
+        background: linear-gradient(135deg, var(--dark), #1a202c);
+        color: var(--light);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 2rem;
+        background: var(--glass);
+        backdrop-filter: blur(10px);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .nav-logo {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+      }
+
+      .nav-link {
+        color: var(--light);
+        text-decoration: none;
+        font-weight: 500;
+        position: relative;
+        padding: 0.5rem 0;
+        transition: all 0.3s ease;
+      }
+
+      .nav-link:hover {
+        color: var(--accent);
+      }
+
+      .container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: calc(100vh - 80px);
+        padding: 2rem;
+        gap: 2rem;
+      }
+
+      .debugger-container {
+        width: 100%;
+        max-width: 800px;
+        background: var(--glass);
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .ai-container {
+        width: 100%;
+        max-width: 600px;
+        background: var(--glass);
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 180px);
+      }
+
+      .debugger-header {
+        padding: 1.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .debugger-header h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.8rem;
+        font-weight: 600;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-align: center;
+      }
+
+      .code-editor {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      textarea {
+        width: 100%;
+        height: 300px;
+        padding: 1.5rem;
+        font-family: "Courier New", monospace;
+        font-size: 1rem;
+        line-height: 1.5;
+        background: rgba(0, 0, 0, 0.2);
+        color: var(--light);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        resize: none;
+        outline: none;
+        transition: all 0.3s ease;
+      }
+
+      textarea:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba(79, 209, 197, 0.3);
+      }
+
+      .btn-container {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+      }
+
+      .btn {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 50px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn-debug {
+        background: linear-gradient(135deg, var(--primary), #8a7cff);
+        box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);
+      }
+
+      .btn-ai {
+        background: linear-gradient(135deg, var(--secondary), #ff8e9e);
+        box-shadow: 0 5px 15px rgba(255, 101, 132, 0.3);
+      }
+
+      .btn-clear {
+        background: linear-gradient(135deg, #64748b, #94a3b8);
+        box-shadow: 0 5px 15px rgba(100, 116, 139, 0.3);
+      }
+
+      .output-container {
+        padding: 0 1.5rem 1.5rem;
+      }
+
+      .output-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .output-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--accent);
+      }
+
+      .output {
+        background: rgba(0, 0, 0, 0.2);
+        color: var(--light);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        min-height: 200px;
+        max-height: 300px;
+        overflow-y: auto;
+        font-family: "Courier New", monospace;
+        line-height: 1.5;
+      }
+
+      .error-message {
+        color: var(--error);
+        margin-bottom: 0.5rem;
+      }
+
+      .success-message {
+        color: var(--success);
+        margin-bottom: 0.5rem;
+      }
+
+      /* AI Chat Styles */
+      .ai-chat {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .ai-message {
+        max-width: 80%;
+        padding: 1rem 1.5rem;
+        border-radius: 18px;
+        position: relative;
+      }
+
+      .ai-bot {
+        align-self: flex-start;
+        background: rgba(108, 99, 255, 0.2);
+        border-bottom-left-radius: 4px;
+        border: 1px solid rgba(108, 99, 255, 0.3);
+      }
+
+      .ai-user {
+        align-self: flex-end;
+        background: rgba(79, 209, 197, 0.2);
+        border-bottom-right-radius: 4px;
+        border: 1px solid rgba(79, 209, 197, 0.3);
+      }
+
+      .ai-message-header {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--accent);
+      }
+
+      .ai-bot .ai-message-header {
+        color: var(--ai-bot);
+      }
+
+      .ai-user .ai-message-header {
+        color: var(--ai-user);
+      }
+
+      .ai-message-content {
+        line-height: 1.5;
+      }
+
+      .ai-message-content pre {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 1rem;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 0.5rem 0;
+        font-family: "Courier New", monospace;
+        white-space: pre-wrap;
+      }
+
+      .ai-input-container {
+        padding: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .ai-input {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .ai-input textarea {
+        flex: 1;
+        height: 60px;
+        min-height: 60px;
+        max-height: 120px;
+      }
+
+      .ai-input button {
+        align-self: flex-end;
+        padding: 0 1.5rem;
+        height: 60px;
+      }
+
+      @media (max-width: 1200px) {
+        .container {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .debugger-container,
+        .ai-container {
+          max-width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-logo">PyDebug</div>
+      <div class="nav-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/debugger" class="nav-link">Debugger</a>
+        <a href="/learnpy" class="nav-link">Learn Python</a>
+        <a href="#" class="nav-link" onclick="exitApp()">Exit</a>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="debugger-container">
+        <div class="debugger-header">
+          <h2>Python Code Debugger</h2>
+        </div>
+        <div class="code-editor">
+          <textarea
+            id="code"
+            placeholder="Enter your Python code here..."
+          ></textarea>
+          <div class="btn-container">
+            <button class="btn btn-debug" onclick="debugCode()">
+              Debug Code
+            </button>
+            <button class="btn btn-ai" onclick="aiDebugCode()">AI Debug</button>
+            <button class="btn btn-clear" onclick="clearCode()">Clear</button>
+          </div>
+        </div>
+        <div class="output-container">
+          <div class="output-header">
+            <div class="output-title">Debug Results</div>
+            <div class="output-actions">
+              <button class="btn btn-clear" onclick="copyResults()">
+                Copy
+              </button>
+            </div>
+          </div>
+          <div class="output" id="result">
+            <div class="success-message">
+              Ready to debug your Python code! Enter your code above and click
+              "Debug Code".
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-container">
+        <div class="debugger-header">
+          <h2>AI Debug Assistant</h2>
+        </div>
+        <div class="ai-chat" id="ai-chat">
+          <div class="ai-message ai-bot">
+            <div class="ai-message-header">Debug Assistant</div>
+            <div class="ai-message-content">
+              Hello! I'm your Python debug assistant. Paste your code and click
+              "AI Debug" to get started.
+              <br /><br />
+              I can help you:
+              <ul>
+                <li>Identify syntax errors</li>
+                <li>Explain runtime exceptions</li>
+                <li>Suggest code improvements</li>
+                <li>Provide examples and best practices</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="ai-input-container">
+          <div class="ai-input">
+            <textarea
+              id="ai-message"
+              placeholder="Ask a question about your code..."
+            ></textarea>
+            <button class="btn btn-ai" onclick="sendAIMessage()">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Debugger functionality
+      let lastDebugResults = null;
+      let currentCode = "";
+
+      async function debugCode() {
+        const code = document.getElementById("code").value.trim();
+        currentCode = code;
+
+        if (!code) {
+          showResult([
+            {
+              type: "error",
+              message: "Please enter some Python code to debug!",
+            },
+          ]);
+          return;
+        }
+
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML =
+          '<div class="success-message">Debugging your code...</div>';
+
+        try {
+          const response = await fetch("/debug", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+
+          const data = await response.json();
+          lastDebugResults = data;
+
+          // Show errors if any
+          if (data.errors && data.errors.length > 0) {
+            showResult(data.errors, data.output);
+          }
+          // Show success if no errors
+          else if (data.output) {
+            showResult(
+              [
+                {
+                  type: "success",
+                  message: "Code executed successfully with output!",
+                },
+              ],
+              data.output
+            );
+          } else {
+            showResult([
+              {
+                type: "success",
+                message: "Code executed successfully with no output!",
+              },
+            ]);
+          }
+        } catch (error) {
+          showResult([
+            {
+              type: "error",
+              message:
+                "Debugging failed. Please check your code and try again.",
+            },
+          ]);
+          console.error("Debug error:", error);
+        }
+      }
+
+      async function aiDebugCode() {
+        const code = document.getElementById("code").value.trim();
+        currentCode = code;
+
+        if (!code) {
+          showResult([
+            {
+              type: "error",
+              message: "Please enter some Python code to debug!",
+            },
+          ]);
+          return;
+        }
+
+        const chatDiv = document.getElementById("ai-chat");
+        const loadingMessage = document.createElement("div");
+        loadingMessage.className = "ai-message ai-bot";
+        loadingMessage.innerHTML = `
+                <div class="ai-message-header">Debug Assistant</div>
+                <div class="ai-message-content">Analyzing your code...</div>
+            `;
+        chatDiv.appendChild(loadingMessage);
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+
+        try {
+          // First run the code to get errors
+          const debugResponse = await fetch("/debug", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code }),
+          });
+
+          const debugData = await debugResponse.json();
+          lastDebugResults = debugData;
+
+          // Then send to AI debugger
+          const errorMessages = debugData.errors
+            ? debugData.errors
+                .filter((e) => e.type === "error")
+                .map((e) => e.message)
+                .join("\n")
+            : "";
+
+          const aiResponse = await fetch("/ai-debug", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              code: code,
+              error: errorMessages,
+            }),
+          });
+
+          const aiData = await aiResponse.json();
+
+          // Remove loading message
+          chatDiv.removeChild(loadingMessage);
+
+          // Add AI response
+          const aiMessage = document.createElement("div");
+          aiMessage.className = "ai-message ai-bot";
+          aiMessage.innerHTML = `
+                    <div class="ai-message-header">Debug Assistant</div>
+                    <div class="ai-message-content">${formatAIMessage(
+                      aiData.response
+                    )}</div>
+                `;
+          chatDiv.appendChild(aiMessage);
+          chatDiv.scrollTop = chatDiv.scrollHeight;
+
+          // Show results in debug output too
+          if (debugData.errors && debugData.errors.length > 0) {
+            showResult(debugData.errors, debugData.output);
+          } else if (debugData.output) {
+            showResult(
+              [
+                {
+                  type: "success",
+                  message: "Code executed successfully with output!",
+                },
+              ],
+              debugData.output
+            );
+          } else {
+            showResult([
+              {
+                type: "success",
+                message: "Code executed successfully with no output!",
+              },
+            ]);
+          }
+        } catch (error) {
+          // Remove loading message
+          chatDiv.removeChild(loadingMessage);
+
+          const errorMessage = document.createElement("div");
+          errorMessage.className = "ai-message ai-bot";
+          errorMessage.innerHTML = `
+                    <div class="ai-message-header">Debug Assistant</div>
+                    <div class="ai-message-content">Sorry, I encountered an error while analyzing your code. Please try again.</div>
+                `;
+          chatDiv.appendChild(errorMessage);
+          chatDiv.scrollTop = chatDiv.scrollHeight;
+
+          console.error("AI Debug error:", error);
+        }
+      }
+
+      async function sendAIMessage() {
+        const message = document.getElementById("ai-message").value.trim();
+        if (!message) return;
+
+        const chatDiv = document.getElementById("ai-chat");
+
+        // Add user message
+        const userMessage = document.createElement("div");
+        userMessage.className = "ai-message ai-user";
+        userMessage.innerHTML = `
+                <div class="ai-message-header">You</div>
+                <div class="ai-message-content">${message.replace(
+                  /\n/g,
+                  "<br>"
+                )}</div>
+            `;
+        chatDiv.appendChild(userMessage);
+
+        // Clear input
+        document.getElementById("ai-message").value = "";
+
+        // Add loading message
+        const loadingMessage = document.createElement("div");
+        loadingMessage.className = "ai-message ai-bot";
+        loadingMessage.innerHTML = `
+                <div class="ai-message-header">Debug Assistant</div>
+                <div class="ai-message-content">Thinking...</div>
+            `;
+        chatDiv.appendChild(loadingMessage);
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+
+        try {
+          const response = await fetch("/ai-debug", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              code: currentCode,
+              message: message,
+            }),
+          });
+
+          const data = await response.json();
+
+          // Remove loading message
+          chatDiv.removeChild(loadingMessage);
+
+          // Add AI response
+          const aiMessage = document.createElement("div");
+          aiMessage.className = "ai-message ai-bot";
+          aiMessage.innerHTML = `
+                    <div class="ai-message-header">Debug Assistant</div>
+                    <div class="ai-message-content">${formatAIMessage(
+                      data.response
+                    )}</div>
+                `;
+          chatDiv.appendChild(aiMessage);
+          chatDiv.scrollTop = chatDiv.scrollHeight;
+        } catch (error) {
+          // Remove loading message
+          chatDiv.removeChild(loadingMessage);
+
+          const errorMessage = document.createElement("div");
+          errorMessage.className = "ai-message ai-bot";
+          errorMessage.innerHTML = `
+                    <div class="ai-message-header">Debug Assistant</div>
+                    <div class="ai-message-content">Sorry, I couldn't process your request. Please try again.</div>
+                `;
+          chatDiv.appendChild(errorMessage);
+          chatDiv.scrollTop = chatDiv.scrollHeight;
+
+          console.error("AI Chat error:", error);
+        }
+      }
+
+      function formatAIMessage(message) {
+        // Convert markdown code blocks to HTML
+        message = message.replace(/```python([\s\S]*?)```/g, "<pre>$1</pre>");
+        message = message.replace(/```([\s\S]*?)```/g, "<pre>$1</pre>");
+
+        // Convert line breaks
+        message = message.replace(/\n/g, "<br>");
+
+        return message;
+      }
+
+      function showResult(errors, output = "") {
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = "";
+
+        if (errors && errors.length > 0) {
+          errors.forEach((error) => {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add(
+              error.type === "success" ? "success-message" : "error-message"
+            );
+            messageDiv.innerHTML = error.message.replace(/\n/g, "<br>");
+            resultDiv.appendChild(messageDiv);
+          });
+        }
+
+        if (output) {
+          const outputDiv = document.createElement("div");
+          outputDiv.style.marginTop = "1rem";
+          outputDiv.style.color = "var(--light)";
+          outputDiv.style.whiteSpace = "pre-wrap";
+          outputDiv.textContent = "Output:\n" + output;
+          resultDiv.appendChild(outputDiv);
+        }
+      }
+
+      function clearCode() {
+        document.getElementById("code").value = "";
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML =
+          '<div class="success-message">Ready to debug your Python code! Enter your code above and click "Debug Code".</div>';
+        lastDebugResults = null;
+        currentCode = "";
+      }
+
+      function copyResults() {
+        const resultDiv = document.getElementById("result");
+        const range = document.createRange();
+        range.selectNode(resultDiv);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand("copy");
+        window.getSelection().removeAllRanges();
+
+        alert("Results copied to clipboard!");
+      }
+
+      // Handle Enter key in AI chat
+      document
+        .getElementById("ai-message")
+        .addEventListener("keydown", function (e) {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendAIMessage();
+          }
+        });
+    </script>
+  </body>
+</html>
