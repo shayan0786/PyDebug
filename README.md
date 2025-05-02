@@ -32,7 +32,23 @@ Goals:
 
 ## 🗃️ Project Structure
 
-
+PyDebug/
+│
+├── templates/ # All HTML pages
+│ ├── index.html # Homepage with dummy chatbot
+│ ├── debugger.html # Functional Gemini debugger
+│ ├── learnpy.html # Python Learning main page
+│ ├── section1py.html # Section 1: Introduction
+│ ├── section2py.html # Section 2: Variables & Data Types
+│ ├── section3py.html # Section 3: Conditional Statements
+│ ├── section4py.html # Section 4: Loops
+│ ├── section5py.html # Section 5: Functions
+│ ├── section6py.html # Section 6: Error Handling
+│
+├── app.py # Main Flask application
+├── test_gemini.py # Testing Gemini debugger separately
+├── README.md # Project documentation
+└── requirements.txt # All dependencies
 ---
 
 ## AI Integration
